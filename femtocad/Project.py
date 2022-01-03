@@ -16,7 +16,8 @@ class Project (Collection):
         self.warnings = []
 
     def get_angle(self):
-        return np.arcsin (self.laser.numerical_aperture / self.specimen.refractive_index)
+        angle = np.arcsin (self.laser.numerical_aperture / self.specimen.refractive_index)
+        return angle
 
     def freeze(self):
         self._frozen = True
@@ -107,7 +108,7 @@ class Project (Collection):
         for k in ['x0', 'y0', 'z0', 'x1', 'y1', 'z1']:
             df[k] = df['segment'].apply(lambda s: getattr(s, k))
 
-        df.sort_values(by=['z1', 'x1', 'y1'], inplace=True)
+        df.sort_values(by=['z1', 'z0', 'x1', 'y1'], inplace=True, ascending=(side == 'back'))
 
         points = np.empty ([0,3], dtype=np.float32)
 
@@ -130,7 +131,7 @@ class Project (Collection):
             z = v[:,2] if side == 'back' else -v[:,2]
             theta = np.arctan2(z, rho)
 
-            valid[iPoint] &= np.all(theta < self.get_angle())
+            valid[iPoint] &= np.all(theta < np.pi/2 - self.get_angle())
             if not valid[iPoint]:
                 print("Found and invalid point:", iPoint)
 
