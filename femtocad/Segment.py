@@ -6,12 +6,14 @@ class Segment:
     """
     Segment class, representing a graphite line
     """
-    def __init__ (self, start, stop, side='auto'):
+    def __init__ (self, start, stop, side='auto', category=0, radius=0.010):
         if side not in ['auto', 'front', 'back']:
             raise KeyError(f"Unexpected side definition {side}: can be 'front', 'back' or 'auto'")
         self.start = np.asarray(start).astype(np.float64).copy()
         self.stop = np.asarray(stop).astype(np.float64).copy()
         self._side = side
+        self.category = category
+        self.radius = radius
 
     @property
     def side(self):

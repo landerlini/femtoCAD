@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from femtocad.Collection import Collection
 
@@ -219,5 +220,29 @@ class Project (Collection):
         plt.gca().w_xaxis.set_pane_color((1.0, 1.0, 1.0, 0.6))
         plt.gca().w_yaxis.set_pane_color((1.0, 1.0, 1.0, 0.6))
         plt.gca().w_zaxis.set_pane_color((1.0, 1.0, 1.0, 0.6))
+
+    def export (self):
+        ret = {}
+        df = self.dataframe.query(f'valid==True').copy()
+
+        def append (k, v):
+            if k in ret.keys():
+                ret[k].append(v)
+            else:
+                ret[k] = [v]
+
+        for seg in df['segment']:
+            bary = (seg.start + seg.stop)/2
+            len = np.linalg.norm(seg.start - seg.stop)
+            orientation = np.argmax(np.abs(seg.stop - seg.start)) + 1
+            append('x', bary[0])
+            append('y', bary[1])
+            append('z', bary[2])
+            append('length', len)
+            append('radius', seg.radius)
+            append('orientation', orientation)
+            append('category', seg.category)
+
+        return pd.DataFrame(ret)
 
 
